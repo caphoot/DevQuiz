@@ -15,8 +15,24 @@ jobs:
         run: |
           pip install openai
 
+      - name: Get PR diff
+        run: |
+          git fetch origin ${{ github.event.pull_request.base.ref }}
+          git diff origin/${{ github.event.pull_request.base.ref }} > .github/scripts/diff.txt
+
       - name: Run AI Review
+        id: ai-review
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
-          python .github/scripts/ai_review.py
+          REVIEW=$(python .github/scripts/ai_review.py)
+          echo "review=$REVIEW" >> $GITHUB_OUTPUT
+
+      - name: Post AI Review Comment
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            🤖 **AI Review Result:**
+
