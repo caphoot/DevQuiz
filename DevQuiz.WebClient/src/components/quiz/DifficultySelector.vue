@@ -1,5 +1,6 @@
 <template>
   <div class="DifficultySelector w-full flex flex-col gap-3 sm:flex-row sm:justify-between">
+    <!-- 
     <button
       type="button"
       :class="['difficulty-btn', selected === 'noob' ? 'selected' : '']"
@@ -16,6 +17,15 @@
     >
       🤓 Nerd
     </button>
+    -->
+    <button
+      type="button"
+      :class="['difficulty-btn', selected === 'christmas' ? 'selected' : '']"
+      @click="select('christmas')"
+      aria-label="Select Christmas difficulty"
+    >
+      🎄 Christmas
+    </button>
   </div>
 </template>
 
@@ -28,7 +38,7 @@ function select(difficulty: string) {
 }
 
 // Default to 'noob' if not set
-if (!selected.value) selected.value = 'noob'
+if (!selected.value) selected.value = 'christmas' //noob
 </script>
 
 <style scoped lang="scss">
@@ -65,7 +75,7 @@ if (!selected.value) selected.value = 'noob'
       background: #f3f4f6;
     }
     @media (min-width: 640px) {
-      width: 47%;
+      width: 31%;
     }
   }
 }

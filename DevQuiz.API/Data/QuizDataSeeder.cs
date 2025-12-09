@@ -200,10 +200,11 @@ public static class QuizDataSeeder
         db.Questions.AddRange(questions);
         await db.SaveChangesAsync();
 
-        // Create two quizzes
+        // Create three quizzes
         var quizNoob = new Quiz { Name = "Noob Quiz", Difficulty = "Noob" };
         var quizNerd = new Quiz { Name = "Nerd Quiz", Difficulty = "Nerd" };
-        db.Quizzes.AddRange(quizNoob, quizNerd);
+        var quizChristmas = new Quiz { Name = "Christmas", Difficulty = "Christmas" };
+        db.Quizzes.AddRange(quizNoob, quizNerd, quizChristmas);
         await db.SaveChangesAsync();
 
         // Link first 6 questions to Noob, remaining 8 to Nerd
@@ -230,6 +231,223 @@ public static class QuizDataSeeder
             }
         }
         db.QuizQuestions.AddRange(quizQuestions);
+        await db.SaveChangesAsync();
+
+        // Add Christmas questions
+        var christmasQuestions = new List<Question>
+        {
+            new()
+            {
+                Type = QuestionType.MultipleChoice,
+                Prompt = "Hvor mange ganger snubler hovmesteren i Grevinnen og hovmesteren?",
+                CorrectAnswer = "11",
+                ChoicesJson = JsonSerializer.Serialize(new List<string>
+                {
+                    "9",
+                    "10",
+                    "11",
+                    "12",
+                }),
+            },
+            new()
+            {
+                Type = QuestionType.MultipleChoice,
+                Prompt = "Hvilke antrekk kommer fra nøttene i Tre nøtter til Askepott?",
+                CorrectAnswer = "Ballkjole, ridedrakt, brudekjole",
+                ChoicesJson = JsonSerializer.Serialize(new List<string>
+                {
+                    "Ballkjole, ridedrakt, brudekjole",
+                    "Ballkjole, vinterkåpe, brudekjole",
+                    "Ballkjole, ridedrakt, festkjole",
+                    "Ballkjole, sommerkjole, brudekjole",
+                }),
+            },
+            new()
+            {
+                Type = QuestionType.MultipleChoice,
+                Prompt = "Hva mottar Karen fra Harry i Love Actually i julegave (som ikke er smykket hun hadde sett)?",
+                CorrectAnswer = "En CD",
+                ChoicesJson = JsonSerializer.Serialize(new List<string>
+                {
+                    "En bok",
+                    "En CD",
+                    "En parfyme",
+                    "Et skjerf",
+                }),
+            },
+            new()
+            {
+                Type = QuestionType.MultipleChoice,
+                Prompt = "Hva heter den lille jenta i Grinchen (2000) spilt av Taylor Momsen?",
+                CorrectAnswer = "Cindy Lou Who",
+                ChoicesJson = JsonSerializer.Serialize(new List<string>
+                {
+                    "Lucy Lou",
+                    "Cindy Lou Who",
+                    "Sally Sue Who",
+                    "Annie Lou Who",
+                }),
+            },
+            new()
+            {
+                Type = QuestionType.MultipleChoice,
+                Prompt = "I hvilke byer befinner husene til Amanda Woods og Iris Simpkins seg i The Holiday?",
+                CorrectAnswer = "Los Angeles og Surrey",
+                ChoicesJson = JsonSerializer.Serialize(new List<string>
+                {
+                    "New York og London",
+                    "Los Angeles og Surrey",
+                    "San Francisco og Oxford",
+                    "Los Angeles og Kent",
+                }),
+            },
+            new()
+            {
+                Type = QuestionType.MultipleChoice,
+                Prompt = "Hvor mange reinsdyr har den tradisjonelle nissen foran sleden?",
+                CorrectAnswer = "8",
+                ChoicesJson = JsonSerializer.Serialize(new List<string>
+                {
+                    "6",
+                    "8",
+                    "9",
+                    "10",
+                }),
+            },
+            new()
+            {
+                Type = QuestionType.MultipleChoice,
+                Prompt = "Hvilket selskap har vært med å etablere den røde fargen på julenissens drakt?",
+                CorrectAnswer = "Coca-Cola",
+                ChoicesJson = JsonSerializer.Serialize(new List<string>
+                {
+                    "Pepsi",
+                    "Coca-Cola",
+                    "Nestlé",
+                    "Disney",
+                }),
+            },
+            new()
+            {
+                Type = QuestionType.MultipleChoice,
+                Prompt = "Hvilket land regnes som opprinnelsen til juletreet slik vi kjenner det i dag?",
+                CorrectAnswer = "Tyskland",
+                ChoicesJson = JsonSerializer.Serialize(new List<string>
+                {
+                    "Sverige",
+                    "Tyskland",
+                    "Danmark",
+                    "Østerrike",
+                }),
+            },
+            new()
+            {
+                Type = QuestionType.MultipleChoice,
+                Prompt = "Hva tennes de fire lysene i advent for, ifølge Inger Hagerup?",
+                CorrectAnswer = "Lengsel, glede, håp og fred",
+                ChoicesJson = JsonSerializer.Serialize(new List<string>
+                {
+                    "Tro, håp, kjærlighet, fred",
+                    "Lengsel, glede, håp og fred",
+                    "Lys, varme, håp og tro",
+                    "Glede, fred, tro og kjærlighet",
+                }),
+            },
+            new()
+            {
+                Type = QuestionType.MultipleChoice,
+                Prompt = "Hvilket land regnes som opphavet til tradisjonen med julestrømper?",
+                CorrectAnswer = "Nederland",
+                ChoicesJson = JsonSerializer.Serialize(new List<string>
+                {
+                    "Nederland",
+                    "Tyskland",
+                    "England",
+                    "Belgia",
+                }),
+            },
+            new()
+            {
+                Type = QuestionType.MultipleChoice,
+                Prompt = "Hvilke tre kryddersorter gir pepperkaker sin karakteristiske smak?",
+                CorrectAnswer = "Kanel, ingefær, nellik",
+                ChoicesJson = JsonSerializer.Serialize(new List<string>
+                {
+                    "Kanel, kardemomme, nellik",
+                    "Kanel, ingefær, nellik",
+                    "Kanel, muskat, ingefær",
+                    "Kanel, anis, nellik",
+                }),
+            },
+            new()
+            {
+                Type = QuestionType.MultipleChoice,
+                Prompt = "Hvilket kjøtt brukes tradisjonelt i norsk ribbe?",
+                CorrectAnswer = "Svin",
+                ChoicesJson = JsonSerializer.Serialize(new List<string>
+                {
+                    "Lam",
+                    "Okse",
+                    "Svin",
+                    "Kalkun",
+                }),
+            },
+            new()
+            {
+                Type = QuestionType.MultipleChoice,
+                Prompt = "Hvilken type pinner brukes i bunnen av gryta til pinnekjøtt?",
+                CorrectAnswer = "Bjørkepinner",
+                ChoicesJson = JsonSerializer.Serialize(new List<string>
+                {
+                    "Bjørkepinner",
+                    "Eikepinner",
+                    "Granpinner",
+                    "Furupinner",
+                }),
+            },
+            new()
+            {
+                Type = QuestionType.MultipleChoice,
+                Prompt = "Hvilken kokk lærte nordmenn å lage tradisjonell julemat på Fjernsynskjøkkenet?",
+                CorrectAnswer = "Ingrid Espelid Hovig",
+                ChoicesJson = JsonSerializer.Serialize(new List<string>
+                {
+                    "Ingrid Espelid Hovig",
+                    "Wenche Andersen",
+                    "Eyvind Hellstrøm",
+                    "Arne Brimi",
+                }),
+            },
+            new()
+            {
+                Type = QuestionType.MultipleChoice,
+                Prompt = "Hvilken kake med mørdeig og mandelfyll ble skapt av konditor Erichsen i Trondheim ca. 1860?",
+                CorrectAnswer = "Fyrstekake",
+                ChoicesJson = JsonSerializer.Serialize(new List<string>
+                {
+                    "Kransekake",
+                    "Fyrstekake",
+                    "Napoleonkake",
+                    "Sarah Bernard",
+                }),
+            },
+        };
+
+        db.Questions.AddRange(christmasQuestions);
+        await db.SaveChangesAsync();
+
+        // Link Christmas questions to Christmas quiz
+        var christmasQuizQuestions = new List<QuizQuestion>();
+        for (int i = 0; i < christmasQuestions.Count; i++)
+        {
+            christmasQuizQuestions.Add(new QuizQuestion
+            {
+                QuizId = quizChristmas.Id,
+                QuestionId = christmasQuestions[i].Id,
+                Sequence = i + 1
+            });
+        }
+        db.QuizQuestions.AddRange(christmasQuizQuestions);
         await db.SaveChangesAsync();
     }
 }

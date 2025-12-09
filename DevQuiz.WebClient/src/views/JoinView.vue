@@ -167,7 +167,7 @@ onMounted(async () => {
     checkingSession.value = false
   }
 })
-const difficulty = ref('noob')
+const difficulty = ref('christmas') // noob
 
 // Find if current code is in common list
 const knownCountry = computed(() => commonCountryCodes.find((c) => c.code === countryCode.value))
