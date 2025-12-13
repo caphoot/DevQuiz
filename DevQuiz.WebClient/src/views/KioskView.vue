@@ -1,19 +1,17 @@
 <template>
   <div class="KioskView bg-primary text-white p-8">
     <div class="flex gap-8">
-      <LeaderboardDisplay
-        title="Noob Quiz"
-        quiz-name="noob"
-        :leaderboard="noobLeaderboard"
-        :format-time="formatTime"
-      />
-
-      <LeaderboardDisplay
-        title="Nerd Quiz"
-        quiz-name="nerd"
-        :leaderboard="nerdLeaderboard"
-        :format-time="formatTime"
-      />
+      <div class="flex flex-col gap-6">
+        <!-- Render one leaderboard per selected difficulty -->
+        <LeaderboardDisplay
+          v-for="diff in selectedDifficulties"
+          :key="diff"
+          :title="`${diff} Quiz`"
+          :quiz-name="diff.toLowerCase()"
+          :leaderboard="leaderboardStore.getLeaderboardData(diff)"
+          :format-time="formatTime"
+        />
+      </div>
 
       <!-- QR Code and Active Participants -->
       <div class="w-[600px] flex flex-col gap-6">
@@ -61,8 +59,8 @@ const completionAnimations = ref<InstanceType<typeof CompletionAnimations>>()
 
 const quizUrl = window.location.origin
 
-const noobLeaderboard = leaderboardStore.noobLeaderboard
-const nerdLeaderboard = leaderboardStore.nerdLeaderboard
+// Use the selected difficulties from the leaderboard store (Pinia unwraps refs on access)
+const selectedDifficulties = leaderboardStore.selectedDifficulties
 
 const activeParticipants = computed(() => ongoingParticipantsStore.activeParticipants)
 
@@ -73,7 +71,7 @@ let signalrCleanupFunctions: (() => void)[] = []
 onMounted(async () => {
   generateQRCode()
 
-  // Initial load
+  // Initial load uses the store's selected difficulties
   await loadLeaderboards()
   await loadOngoingParticipants()
 
@@ -143,19 +141,25 @@ const formatTime = (ms: number) => {
 
 const loadOngoingParticipants = async () => {
   try {
-    // Fetch ongoing participants for both difficulties
-    const [noobParticipants, nerdParticipants] = await Promise.all([
-      api.getOngoingParticipants('Noob'),
-      api.getOngoingParticipants('Nerd')
-    ])
+    // Fetch ongoing participants for all selected difficulties in parallel
+    const diffs = (selectedDifficulties && selectedDifficulties.length) ? selectedDifficulties : ['Christmas']
+    const results = await Promise.all(diffs.map((d: string) => api.getOngoingParticipants(d).catch(err => { console.error('ongoing fetch failed for', d, err); return [] })))
+
+    // Merge results and dedupe by sessionId
+    const combined: any[] = []
+    const seen = new Set<string>()
+    for (const arr of results) {
+      for (const p of arr) {
+        if (!seen.has(p.sessionId)) {
+          seen.add(p.sessionId)
+          combined.push(p)
+        }
+      }
+    }
 
     // Replace the entire participant list with fresh data from the server
-    // This ensures completed participants are removed even if SignalR missed the event
     ongoingParticipantsStore.clearAll()
-    const allParticipants = [...noobParticipants, ...nerdParticipants]
-    allParticipants.forEach(participant => {
-      ongoingParticipantsStore.addParticipant(participant)
-    })
+    combined.forEach(participant => ongoingParticipantsStore.addParticipant(participant))
   } catch (error) {
     console.error('Failed to load ongoing participants:', error)
   }
@@ -163,7 +167,8 @@ const loadOngoingParticipants = async () => {
 
 const loadLeaderboards = async () => {
   try {
-    await leaderboardStore.fetchBothLeaderboards(15)
+    // Let the store fetch the configured difficulties by default
+    await leaderboardStore.fetchLeaderboards()
   } catch {
     // Silently ignore - store handles error state
   }

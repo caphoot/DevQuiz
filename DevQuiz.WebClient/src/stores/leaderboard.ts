@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { api, type LeaderboardEntry } from '@/lib/api'
 
 interface LeaderboardData {
@@ -8,21 +8,60 @@ interface LeaderboardData {
   error: string | null
 }
 
+// Choose the difficulties you want the app to track in one place.
+// Edit this array to change which leaderboards are created and fetched.
+const DEFAULT_DIFFICULTIES = ['Christmas']
+
 export const useLeaderboardStore = defineStore('leaderboard', () => {
-  const noobLeaderboard = reactive<LeaderboardData>({
-    entries: [],
-    loading: false,
-    error: null
-  })
+  const selectedDifficulties = ref<string[]>([...DEFAULT_DIFFICULTIES])
 
-  const nerdLeaderboard = reactive<LeaderboardData>({
-    entries: [],
-    loading: false,
-    error: null
-  })
+  // Dynamic map of leaderboards keyed by difficulty name
+  const leaderboards = reactive<Record<string, LeaderboardData>>({} as Record<string, LeaderboardData>)
 
-  async function fetchLeaderboardByDifficulty(difficulty: 'Noob' | 'Nerd', limit: number = 10): Promise<LeaderboardEntry[]> {
-    const leaderboardData = difficulty === 'Noob' ? noobLeaderboard : nerdLeaderboard
+  function initLeaderboards(difficulties: string[]) {
+    // remove any existing keys not in the new list
+    for (const key of Object.keys(leaderboards)) {
+      if (!difficulties.includes(key)) {
+        delete (leaderboards as any)[key]
+      }
+    }
+
+    // ensure each requested difficulty has an initialized object
+    for (const diff of difficulties) {
+      if (!leaderboards[diff]) {
+        leaderboards[diff] = {
+          entries: [],
+          loading: false,
+          error: null
+        }
+      }
+    }
+  }
+
+  // Initialize with defaults
+  initLeaderboards(selectedDifficulties.value)
+
+  // Allow runtime change of which difficulties are tracked
+  function setDifficulties(difficulties: string[]) {
+    selectedDifficulties.value = [...difficulties]
+    initLeaderboards(selectedDifficulties.value)
+  }
+
+  // Ensure a reactive LeaderboardData exists for difficulty
+  function ensureLeaderboard(difficulty: string): LeaderboardData {
+    if (!leaderboards[difficulty]) {
+      leaderboards[difficulty] = {
+        entries: [],
+        loading: false,
+        error: null
+      }
+    }
+    return leaderboards[difficulty]
+  }
+
+  async function fetchLeaderboardByDifficulty(difficulty: string, limit: number = 10): Promise<LeaderboardEntry[]> {
+    const leaderboardData = ensureLeaderboard(difficulty)
+
     // Only show loading state if we don't have data yet
     if (leaderboardData.entries.length === 0) {
       leaderboardData.loading = true
@@ -42,35 +81,43 @@ export const useLeaderboardStore = defineStore('leaderboard', () => {
     }
   }
 
-  async function fetchBothLeaderboards(limit: number = 10): Promise<void> {
-    await Promise.all([
-      fetchLeaderboardByDifficulty('Noob', limit),
-      fetchLeaderboardByDifficulty('Nerd', limit)
-    ])
+  // Fetch the currently-selected difficulties (or a provided list)
+  async function fetchLeaderboards(difficulties: string[] | null = null, limit: number = 10): Promise<void> {
+    const diffs = difficulties ?? selectedDifficulties.value
+    await Promise.all(diffs.map(d => fetchLeaderboardByDifficulty(d, limit)))
   }
 
   function clearLeaderboards() {
-    noobLeaderboard.entries = []
-    noobLeaderboard.loading = false
-    noobLeaderboard.error = null
-
-    nerdLeaderboard.entries = []
-    nerdLeaderboard.loading = false
-    nerdLeaderboard.error = null
+    for (const key of Object.keys(leaderboards)) {
+      leaderboards[key].entries = []
+      leaderboards[key].loading = false
+      leaderboards[key].error = null
+    }
   }
 
   function updateLeaderboard(difficulty: string, entries: LeaderboardEntry[]) {
-    const leaderboardData = difficulty === 'Noob' ? noobLeaderboard : nerdLeaderboard
+    const leaderboardData = ensureLeaderboard(difficulty)
     leaderboardData.entries = entries
     leaderboardData.loading = false
     leaderboardData.error = null
   }
 
+  function getLeaderboardData(difficulty: string): LeaderboardData {
+    return leaderboards[difficulty] ?? { entries: [], loading: false, error: null }
+  }
+
   return {
-    noobLeaderboard,
-    nerdLeaderboard,
+    // configuration
+    selectedDifficulties,
+    setDifficulties,
+
+    // dynamic map + accessor
+    leaderboards,
+    getLeaderboardData,
+
+    // operations
     fetchLeaderboardByDifficulty,
-    fetchBothLeaderboards,
+    fetchLeaderboards,
     clearLeaderboards,
     updateLeaderboard
   }
