@@ -41,7 +41,6 @@ export const useOngoingParticipantsStore = defineStore('ongoingParticipants', ()
     participants.value.clear()
   }
 
-  // Clean up inactive participants periodically
   function cleanupInactive() {
     const now = Date.now()
     for (const [sessionId, participant] of participants.value.entries()) {

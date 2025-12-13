@@ -2,7 +2,6 @@
   <div class="KioskView bg-transparent text-white p-8">
     <div class="flex gap-8 items-start">
       <div class="flex-1 min-w-0 flex flex-col gap-6">
-        <!-- Render one leaderboard per selected difficulty, constrain max width -->
         <div v-for="diff in selectedDifficulties" :key="diff" class="w-full max-w-4xl mx-auto">
           <LeaderboardDisplay
             :title="`${diff} Quiz`"
@@ -14,7 +13,6 @@
         </div>
       </div>
 
-      <!-- QR Code and Active Participants -->
       <div class="w-[640px] flex-shrink-0 flex flex-col gap-6 pr-8">
         <div class="bg-secondary rounded-2xl p-10 flex flex-col items-center justify-center">
           <h2 class="text-3xl font-bold mb-6">Join the Quiz!</h2>
@@ -29,14 +27,12 @@
           </div>
         </div>
 
-        <!-- Active Participants -->
         <div class="bg-secondary rounded-2xl p-8">
           <OngoingParticipants :participants="activeParticipants" />
         </div>
       </div>
     </div>
 
-    <!-- Completion Animations -->
     <CompletionAnimations ref="completionAnimations" />
   </div>
 </template>
@@ -60,7 +56,6 @@ const completionAnimations = ref<InstanceType<typeof CompletionAnimations>>()
 
 const quizUrl = window.location.origin
 
-// Use the selected difficulties from the leaderboard store (Pinia unwraps refs on access)
 const selectedDifficulties = leaderboardStore.selectedDifficulties
 
 const activeParticipants = computed(() => ongoingParticipantsStore.activeParticipants)
@@ -72,14 +67,11 @@ let signalrCleanupFunctions: (() => void)[] = []
 onMounted(async () => {
   generateQRCode()
 
-  // Initial load uses the store's selected difficulties
   await loadLeaderboards()
   await loadOngoingParticipants()
 
-  // Start SignalR connection
   await signalrService.startConnection()
 
-  // Register SignalR handlers and store cleanup functions
   signalrCleanupFunctions.push(
     signalrService.onLeaderboardUpdate((difficulty, entries) => {
       console.log('[SignalR] Leaderboard update received:', difficulty, entries.length, 'entries')
@@ -104,20 +96,15 @@ onMounted(async () => {
   signalrCleanupFunctions.push(
     signalrService.onParticipantCompleted((completion) => {
       console.log('[SignalR] Participant completed:', completion.name, 'Rank', completion.ranking)
-      // Remove from ongoing participants
       ongoingParticipantsStore.removeParticipant(completion.sessionId)
-
-      // Trigger completion animation
       completionAnimations.value?.handleCompletion(completion)
     })
   )
 
-  // Cleanup inactive participants every 5 seconds
   cleanupInterval = setInterval(() => {
     ongoingParticipantsStore.cleanupInactive()
   }, 5000)
 
-  // Poll for updates every 10 seconds as backup (in case SignalR disconnects or backend restarts)
   pollInterval = setInterval(async () => {
     await loadLeaderboards()
     await loadOngoingParticipants()
@@ -128,7 +115,6 @@ onUnmounted(async () => {
   clearInterval(cleanupInterval)
   clearInterval(pollInterval)
 
-  // Clean up SignalR event handlers
   signalrCleanupFunctions.forEach(cleanup => cleanup())
   signalrCleanupFunctions = []
 
@@ -142,11 +128,9 @@ const formatTime = (ms: number) => {
 
 const loadOngoingParticipants = async () => {
   try {
-    // Fetch ongoing participants for all selected difficulties in parallel
     const diffs = (selectedDifficulties && selectedDifficulties.length) ? selectedDifficulties : ['Christmas']
     const results = await Promise.all(diffs.map((d: string) => api.getOngoingParticipants(d).catch(err => { console.error('ongoing fetch failed for', d, err); return [] })))
 
-    // Merge results and dedupe by sessionId
     const combined: any[] = []
     const seen = new Set<string>()
     for (const arr of results) {
@@ -158,7 +142,6 @@ const loadOngoingParticipants = async () => {
       }
     }
 
-    // Replace the entire participant list with fresh data from the server
     ongoingParticipantsStore.clearAll()
     combined.forEach(participant => ongoingParticipantsStore.addParticipant(participant))
   } catch (error) {
@@ -168,10 +151,8 @@ const loadOngoingParticipants = async () => {
 
 const loadLeaderboards = async () => {
   try {
-    // Let the store fetch the configured difficulties by default
     await leaderboardStore.fetchLeaderboards()
   } catch {
-    // Silently ignore - store handles error state
   }
 }
 
@@ -187,7 +168,6 @@ const generateQRCode = async () => {
         },
       })
     } catch {
-      // Silently ignore QR generation failure
     }
   }
 }
@@ -195,10 +175,7 @@ const generateQRCode = async () => {
 
 <style scoped lang="scss">
 .KioskView {
-  // Desktop-only optimizations
-  min-width: 1400px; // Minimum width for desktop displays
-
-  // Prevent text selection on kiosk
+  min-width: 1400px;
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
