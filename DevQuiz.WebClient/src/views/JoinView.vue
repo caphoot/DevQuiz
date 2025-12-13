@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-start justify-center px-4 min-h-screen pt-4">
     <div>
-      <div class="max-w-md w-full rounded-lg shadow-lg p-8 bg-secondary -mt-6">
+      <div class="max-w-md w-full rounded-lg shadow-lg p-8 bg-secondary -mt-2">
 
       <!-- Avatar selector centered above the form -->
       <div class="flex justify-center mb-6">
