@@ -1,7 +1,7 @@
 <template>
-  <div class="flex items-center justify-center px-4">
+  <div class="flex items-start justify-center px-4 min-h-screen pt-4">
     <div>
-      <div class="max-w-md w-full rounded-lg shadow-lg p-8 bg-secondary">
+      <div class="max-w-md w-full rounded-lg shadow-lg p-8 bg-secondary -mt-6">
 
       <!-- Avatar selector centered above the form -->
       <div class="flex justify-center mb-6">
@@ -11,7 +11,7 @@
         </div>
       </div>
 
-      <form @submit.prevent="handleJoin" class="space-y-6">
+      <form id="joinForm" @submit.prevent="handleJoin" class="space-y-6">
         <div>
           <label for="name" class="block text-sm font-medium mb-2">Name</label>
           <input
@@ -83,36 +83,22 @@
               />
             </div>
           </div>
-
-
-        <div class="w-full flex flex-col mb-4">
-          <label class="block text-sm font-medium mb-2 text-left w-full">Difficulty</label>
-          <div class="flex justify-center w-full">
-            <DifficultySelector v-model="difficulty" />
-          </div>
-        </div>
-
-          <div class="text-sm p-3 rounded-lg border border-gray-300">
-            <p class="mb-2">📝 One attempt for each difficulty</p>
-            <p class="mb-2">📱 Winners will be contacted by phone</p>
-            <p>🔒 Data will be deleted after the event</p>
-          </div>
-
-          <button
-            type="submit"
-            :disabled="loading"
-            class="w-full py-3 px-4 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {{ loading ? 'Starting...' : 'Start Quiz' }}
-          </button>
-
-          <div
-            v-if="error"
-            class="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm"
-          >
-            {{ error }}
-          </div>
         </form>
+      </div>
+      <div class="max-w-md w-full mt-4">
+        <button
+          type="button"
+          @click="handleJoin"
+          :disabled="loading"
+          class="w-full py-3 px-4 text-white rounded-lg font-medium focus:ring-4 focus:ring-[#0071AD]/50 focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          :style="{ backgroundColor: '#0071AD' }"
+        >
+          {{ loading ? 'Starting...' : 'Start Caphoot' }}
+        </button>
+
+        <div v-if="error" class="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm mt-3">
+          {{ error }}
+        </div>
       </div>
     </div>
   </div>
@@ -120,7 +106,6 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
-import DifficultySelector from '@/components/quiz/DifficultySelector.vue'
 import { useRouter } from 'vue-router'
 import { useSessionStore } from '@/stores/session'
 import AvatarSelector from '@/components/AvatarSelector.vue'
