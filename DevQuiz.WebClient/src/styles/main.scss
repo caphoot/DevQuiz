@@ -1,6 +1,17 @@
 @use 'tailwindcss' as *;
 
 @layer base {
+  /* Use the single Inter variable font file (TrueType) placed in src/assets/fonts/ */
+  @font-face {
+    font-family: 'Inter';
+    src: url('../assets/fonts/Inter-VariableFont_opsz,wght.ttf') format('truetype');
+    /* variable font supports a range of weights */
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  /* Keep existing local Gugi font as fallback */
   @font-face {
     font-family: 'Gugi';
     src: url('../assets/fonts/gugi-v21-latin-regular.woff2') format('woff2');
@@ -10,7 +21,8 @@
   }
 
   html, body {
-    font-family: 'Gugi', system-ui, -apple-system, sans-serif;
+    /* Use Inter as the global default, fall back to Gugi and system fonts */
+    font-family: 'Inter', 'Gugi', system-ui, -apple-system, sans-serif;
     background-color: #201d27;
     color: #ffffff;
   }
