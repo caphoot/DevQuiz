@@ -56,7 +56,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build-and-push
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/71-add-christmas-questions-to-the-quiz'
     environment:
       name: production
       url: ${{ steps.deploy.outputs.webapp-url }}
