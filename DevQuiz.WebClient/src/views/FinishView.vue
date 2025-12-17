@@ -1,30 +1,20 @@
 <template>
-  <div class="FinishView flex items-center justify-center p-4">
-    <div class="max-w-md w-full bg-secondary rounded-lg shadow-lg p-8 text-center">
-      <div class="text-6xl mb-6">🎉</div>
+  <div class="FinishView flex items-start justify-center min-h-screen px-4 pt-4">
+    <div class="max-w-md w-full bg-[#2b2330] rounded-xl shadow-lg p-8 text-center text-white -mt-2">
+      <p class="text-lg font-semibold mb-4">Not bad! The Grinch would have turned green with envy!</p>
 
-      <h1 class="text-3xl font-bold mb-4">Quiz Completed!</h1>
+      <div class="text-6xl mb-4">🎉</div>
 
-      <div class="bg-blue-50 rounded-lg p-6 mb-6">
-        <p class="text-sm text-gray-600 mb-2">Your Current Position</p>
-        <p class="text-4xl font-bold text-blue-600">{{ leaderBoard?.position ?? 'Unknown' }}</p>
-      </div>
+      <div class="text-sm text-gray-300 mb-2">Your total time</div>
+      <div class="text-4xl font-extrabold mb-2">{{ formattedTime }}</div>
 
-      <div class="bg-blue-50 rounded-lg p-6 mb-6">
-        <p class="text-sm text-gray-600 mb-2">Your Total Time</p>
-        <p class="text-4xl font-bold text-blue-600">{{ formattedTime }}</p>
-      </div>
+      <div class="text-yellow-400 text-sm mb-4">🏆 {{ leaderBoard?.position ?? '—' }} place of {{ leaderBoard?.totalParticipants ?? '—' }} participants</div>
 
-      <div class="text-white space-y-2 mb-8">
-        <p class="text-lg">Thank you for participating!</p>
-        <p class="text-sm">Winners will be contacted by phone</p>
-      </div>
-
-      <ContactForm />
+      <p class="text-gray-300 text-sm mb-6">Thanks for participating! Try again next year for an even better ranking.</p>
 
       <button
         @click="goHome"
-        class="mt-6 px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+        class="w-full py-3 bg-[#0071AD] text-white rounded-lg font-medium hover:bg-[#005f8a] transition-colors"
       >
         Back to Home
       </button>

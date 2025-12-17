@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { api, type LeaderboardEntry } from '@/lib/api'
 
 interface LeaderboardData {
@@ -8,22 +8,52 @@ interface LeaderboardData {
   error: string | null
 }
 
+const DEFAULT_DIFFICULTIES = ['Christmas']
+
 export const useLeaderboardStore = defineStore('leaderboard', () => {
-  const noobLeaderboard = reactive<LeaderboardData>({
-    entries: [],
-    loading: false,
-    error: null
-  })
+  const selectedDifficulties = ref<string[]>([...DEFAULT_DIFFICULTIES])
 
-  const nerdLeaderboard = reactive<LeaderboardData>({
-    entries: [],
-    loading: false,
-    error: null
-  })
+  const leaderboards = reactive<Record<string, LeaderboardData>>({} as Record<string, LeaderboardData>)
 
-  async function fetchLeaderboardByDifficulty(difficulty: 'Noob' | 'Nerd', limit: number = 10): Promise<LeaderboardEntry[]> {
-    const leaderboardData = difficulty === 'Noob' ? noobLeaderboard : nerdLeaderboard
-    // Only show loading state if we don't have data yet
+  function initLeaderboards(difficulties: string[]) {
+    for (const key of Object.keys(leaderboards)) {
+      if (!difficulties.includes(key)) {
+        delete (leaderboards as any)[key]
+      }
+    }
+
+    for (const diff of difficulties) {
+      if (!leaderboards[diff]) {
+        leaderboards[diff] = {
+          entries: [],
+          loading: false,
+          error: null
+        }
+      }
+    }
+  }
+
+  initLeaderboards(selectedDifficulties.value)
+
+  function setDifficulties(difficulties: string[]) {
+    selectedDifficulties.value = [...difficulties]
+    initLeaderboards(selectedDifficulties.value)
+  }
+
+  function ensureLeaderboard(difficulty: string): LeaderboardData {
+    if (!leaderboards[difficulty]) {
+      leaderboards[difficulty] = {
+        entries: [],
+        loading: false,
+        error: null
+      }
+    }
+    return leaderboards[difficulty]
+  }
+
+  async function fetchLeaderboardByDifficulty(difficulty: string, limit: number = 10): Promise<LeaderboardEntry[]> {
+    const leaderboardData = ensureLeaderboard(difficulty)
+
     if (leaderboardData.entries.length === 0) {
       leaderboardData.loading = true
     }
@@ -35,42 +65,45 @@ export const useLeaderboardStore = defineStore('leaderboard', () => {
       return data
     } catch (err) {
       leaderboardData.error = err instanceof Error ? err.message : 'Failed to load leaderboard'
-      // Keep existing entries on error to avoid flash of empty content
       throw err
     } finally {
       leaderboardData.loading = false
     }
   }
 
-  async function fetchBothLeaderboards(limit: number = 10): Promise<void> {
-    await Promise.all([
-      fetchLeaderboardByDifficulty('Noob', limit),
-      fetchLeaderboardByDifficulty('Nerd', limit)
-    ])
+  async function fetchLeaderboards(difficulties: string[] | null = null, limit: number = 10): Promise<void> {
+    const diffs = difficulties ?? selectedDifficulties.value
+    await Promise.all(diffs.map(d => fetchLeaderboardByDifficulty(d, limit)))
   }
 
   function clearLeaderboards() {
-    noobLeaderboard.entries = []
-    noobLeaderboard.loading = false
-    noobLeaderboard.error = null
-
-    nerdLeaderboard.entries = []
-    nerdLeaderboard.loading = false
-    nerdLeaderboard.error = null
+    for (const key of Object.keys(leaderboards)) {
+      leaderboards[key].entries = []
+      leaderboards[key].loading = false
+      leaderboards[key].error = null
+    }
   }
 
   function updateLeaderboard(difficulty: string, entries: LeaderboardEntry[]) {
-    const leaderboardData = difficulty === 'Noob' ? noobLeaderboard : nerdLeaderboard
+    const leaderboardData = ensureLeaderboard(difficulty)
     leaderboardData.entries = entries
     leaderboardData.loading = false
     leaderboardData.error = null
   }
 
+  function getLeaderboardData(difficulty: string): LeaderboardData {
+    return leaderboards[difficulty] ?? { entries: [], loading: false, error: null }
+  }
+
   return {
-    noobLeaderboard,
-    nerdLeaderboard,
+    selectedDifficulties,
+    setDifficulties,
+
+    leaderboards,
+    getLeaderboardData,
+
     fetchLeaderboardByDifficulty,
-    fetchBothLeaderboards,
+    fetchLeaderboards,
     clearLeaderboards,
     updateLeaderboard
   }
