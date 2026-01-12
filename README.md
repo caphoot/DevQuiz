@@ -1,6 +1,6 @@
 # DevQuiz
 
-A real-time conference quiz application built with Vue 3 and ASP.NET Core, designed for engaging conference attendees with timed programming challenges.
+A real-time quiz application built with Vue 3 and ASP.NET Core, originaly designed for engaging conference attendees with timed programming challenges but is now beeing developed for use in other settings.
 
 ## 🚀 Features
 
