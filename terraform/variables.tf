@@ -51,6 +51,12 @@ variable "ghcr_image" {
   default     = "ghcr.io/mamk95/devquiz"
 }
 
+variable "image_tag" {
+  description = "Container image tag to deploy"
+  type        = string
+  default     = "latest"
+}
+
 variable "app_service_sku" {
   description = "App Service Plan SKU (must be Standard or higher for deployment slots)"
   type        = string

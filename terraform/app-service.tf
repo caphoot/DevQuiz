@@ -24,7 +24,7 @@ resource "azurerm_linux_web_app" "main" {
     websockets_enabled = true
 
     application_stack {
-      docker_image_name   = "mamk95/devquiz:latest"
+      docker_image_name   = "${var.ghcr_image}:${var.image_tag}"
       docker_registry_url = "https://ghcr.io"
     }
   }
@@ -60,7 +60,7 @@ resource "azurerm_linux_web_app_slot" "staging" {
     websockets_enabled = true
 
     application_stack {
-      docker_image_name   = "mamk95/devquiz:latest"
+      docker_image_name   = "${var.ghcr_image}:${var.image_tag}"
       docker_registry_url = "https://ghcr.io"
     }
   }

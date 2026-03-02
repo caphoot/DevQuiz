@@ -22,10 +22,11 @@ resource "azurerm_mssql_database" "main" {
   tags = local.tags
 }
 
-# Allow Azure services to access the SQL Server
-resource "azurerm_mssql_firewall_rule" "allow_azure" {
-  name             = "AllowAzureServices"
+# Allow only App Service outbound IPs to access the SQL Server
+resource "azurerm_mssql_firewall_rule" "allow_app_service" {
+  for_each         = toset(azurerm_linux_web_app.main.outbound_ip_address_list)
+  name             = "AllowAppService-${replace(each.value, ".", "-")}"
   server_id        = azurerm_mssql_server.main.id
-  start_ip_address = "0.0.0.0"
-  end_ip_address   = "0.0.0.0"
+  start_ip_address = each.value
+  end_ip_address   = each.value
 }
