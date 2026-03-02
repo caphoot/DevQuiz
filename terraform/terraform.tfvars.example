@@ -1,0 +1,20 @@
+# Copy this file to terraform.tfvars and fill in your values
+# terraform.tfvars is gitignored and will not be committed
+
+project_name = "devquiz"
+location     = "norwayeast"
+environment  = "prod"
+
+# SQL Server credentials
+sql_admin_username = "sqladmin"
+sql_admin_password = "CHANGE_ME_strong_password_123!"
+
+# Application secrets
+jwt_secret     = "CHANGE_ME_minimum_32_characters_long_secret_key"
+admin_password = "CHANGE_ME_admin_password"
+
+# Container image (without tag - CI/CD handles tagging)
+ghcr_image = "ghcr.io/mamk95/devquiz"
+
+# App Service Plan SKU (S1 required for deployment slots)
+app_service_sku = "S1"
