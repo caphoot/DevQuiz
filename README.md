@@ -79,6 +79,43 @@ dotnet ef database update    # Apply migrations
 dotnet watch run             # Start with hot reload
 ```
 
+#### 🍎 Running Backend on macOS (SQL Server via Docker)
+LocalDB (the default connection string in `appsettings.json`) is **Windows‑only** and does not work on macOS.  
+To run the backend on macOS, you must run SQL Server inside Docker and override the connection string for development.
+
+#### 1. Start SQL Server in Docker
+Run this once:
+
+```bash
+docker rm -f dev-sql 2>/dev/null || true
+
+docker run \
+  --platform=linux/amd64 \
+  -e "ACCEPT_EULA=Y" \
+  -e 'MSSQL_SA_PASSWORD=DevQuiz@2024Strong!' \
+  -p 11433:1433 \
+  --name dev-sql \
+  -d mcr.microsoft.com/mssql/server:2022-latest
+  ```
+
+  #### 2. Add development connection string(nacOS override)
+  Edit `appsettings.Development.json` in `DevQuiz.API` and add: 
+
+  ```
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost,11433;Database=DevQuizDb;User Id=sa;Password=DevQuiz@2024Strong!;TrustServerCertificate=True;"
+  }
+```
+
+Now try to run: 
+```bash
+cd DevQuiz.API
+dotnet restore
+ASPNETCORE_ENVIRONMENT=Development dotnet ef database update
+dotnet watch run             # Start with hot reload
+```
+
+
 API will be available at `http://localhost:5000`
 
 #### Frontend Setup
